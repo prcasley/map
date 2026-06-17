@@ -98,13 +98,11 @@
         map.on('focus', () => { map.scrollWheelZoom.enable(); });
         map.on('blur', () => { map.scrollWheelZoom.disable(); });
 
-        const pointBounds = [];
         const hqIcon = L.divIcon({ className: 'custom-logo-marker', html: `<img src="${logoUrl}" alt="W">`, iconSize: [52, 52], iconAnchor: [26, 26] });
         const hqMarker = L.marker([hqData.lat, hqData.lng], { icon: hqIcon }).addTo(map);
         hqMarker._icon.style.border = "2px solid #B08D57";
         hqMarker._icon.style.boxShadow = "0 0 15px rgba(176, 141, 87, 0.6)";
         hqMarker.bindPopup(`<div class="popup-title">${hqData.title}</div><div class="popup-subtitle">${hqData.address}</div><a href="${hqData.url}" target="_blank" rel="noopener" class="popup-link">Get directions →</a>`, { closeButton: false, offset: [0, -10] });
-        pointBounds.push([hqData.lat, hqData.lng]);
 
         const communityIcon = L.divIcon({ className: 'custom-logo-marker', html: `<img src="${logoUrl}" alt="W">`, iconSize: [34, 34], iconAnchor: [17, 17] });
         marketLocations.forEach(loc => {
@@ -112,15 +110,12 @@
             marker._icon.style.border = "1.5px solid #3A7BD5";
             marker._icon.style.boxShadow = "0 0 10px rgba(58, 123, 213, 0.4)";
             marker.bindPopup(`<div class="popup-title" style="font-size:1rem; margin-bottom:0;">${loc.city}</div><div class="popup-subtitle" style="margin-bottom:0; font-size:0.65rem;">Woodmont Properties Footprint</div>`, { closeButton: false, offset: [0, -6] });
-            pointBounds.push([loc.lat, loc.lng]);
         });
 
-        if (pointBounds.length > 0) {
-            const bounds = L.latLngBounds(pointBounds);
-            setTimeout(() => {
-                map.flyToBounds(bounds, { padding: window.innerWidth <= 768 ? [20, 20] : [50, 50], maxZoom: 7, duration: 2.5, easeLinearity: 0.25 });
-            }, 800);
-        }
+        setTimeout(() => {
+            const targetZoom = window.innerWidth <= 768 ? 6.5 : 7.5;
+            map.flyTo([40.5, -74.4], targetZoom, { duration: 2.5, easeLinearity: 0.25 });
+        }, 800);
 
         function adjustLayoutForMobile() {
             const infoCard = document.querySelector('.info-card');
