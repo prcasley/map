@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woodmont Properties - Interactive Footprint Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjECl6rXUdcaMNo16C0P9A+A773u57B8Hekf06pS7qXg4Mfw8c9Zc8A==&q=80" crossorigin="anonymous" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0b223f; color: #F8F7F4; font-family: 'Inter', sans-serif; padding: 20px; overflow-x: hidden; display: flex; flex-direction: column; }
+        .map-header { margin-bottom: 24px; max-width: 1200px; width: 100%; margin: 0 auto 24px auto; }
+        .eyebrow { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: #3A7BD5; font-weight: 600; margin-bottom: 6px; display: block; }
+        .headline { font-family: 'Cormorant Garamond', serif; font-size: 2.25rem; font-weight: 400; line-height: 1.2; }
+        .map-wrapper { position: relative; width: 100%; max-width: 1200px; height: 560px; margin: 0 auto; border: 1px solid rgba(176, 141, 87, 0.3); border-radius: 4px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); }
+        #map { width: 100%; height: 100%; background-color: #0b223f; }
+        .leaflet-tile-pane { filter: hue-rotate(195deg) saturate(180%) invert(10%) contrast(110%); }
+        .frosted-panel { background: rgba(11, 34, 63, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(176, 141, 87, 0.4); border-radius: 4px; padding: 20px; color: #F8F7F4; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
+        .info-card { position: absolute; top: 20px; left: 20px; z-index: 1000; max-width: 320px; }
+        .info-card .card-eyebrow { font-size: 0.65rem; letter-spacing: 0.2em; color: #B08D57; font-weight: 600; margin-bottom: 4px; }
+        .info-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 400; margin-bottom: 8px; line-height: 1.1; }
+        .info-card p { font-size: 0.85rem; line-height: 1.5; color: rgba(248, 247, 244, 0.8); margin-bottom: 16px; font-weight: 300; }
+        .btn-directions { display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 1px solid #B08D57; color: #B08D57; padding: 8px 16px; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; text-decoration: none; text-transform: uppercase; border-radius: 2px; transition: all 0.3s ease; }
+        .btn-directions:hover { background: #B08D57; color: #0b223f; }
+        .map-legend { position: absolute; bottom: 30px; left: 20px; z-index: 1000; padding: 12px 16px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .legend-item { display: flex; align-items: center; gap: 10px; }
+        .custom-logo-marker { background-color: #0b223f; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .custom-logo-marker img { width: 70%; height: 70%; object-fit: contain; }
+        .leaflet-popup-content-wrapper { background: rgba(11, 34, 63, 0.95) !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(176, 141, 87, 0.3); border-radius: 3px !important; color: #F8F7F4 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important; }
+        .leaflet-popup-tip { background: rgba(11, 34, 63, 0.95) !important; border-left: 1px solid rgba(176, 141, 87, 0.3); border-bottom: 1px solid rgba(176, 141, 87, 0.3); }
+        .popup-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 2px; }
+        .popup-subtitle { font-size: 0.7rem; color: rgba(248, 247, 244, 0.6); margin-bottom: 6px; }
+        .popup-link { color: #B08D57; text-decoration: none; font-size: 0.75rem; font-weight: 500; display: inline-block; }
+        .popup-link:hover { text-decoration: underline; }
+        .leaflet-bar { border: 1px solid rgba(176, 141, 87, 0.4) !important; box-shadow: none !important; border-radius: 4px !important; overflow: hidden; }
+        .leaflet-bar a { background-color: rgba(11, 34, 63, 0.9) !important; color: #F8F7F4 !important; border-bottom: 1px solid rgba(176, 141, 87, 0.2) !important; }
+        .leaflet-bar a:hover { background-color: #B08D57 !important; color: #0b223f !important; }
+        .leaflet-control-attribution { background: rgba(11, 34, 63, 0.85) !important; color: rgba(248, 247, 244, 0.4) !important; font-size: 10px !important; }
+        .leaflet-control-attribution a { color: rgba(58, 123, 213, 0.8) !important; }
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .headline { font-size: 1.75rem; }
+            .map-wrapper { height: 420px; }
+            .info-card { position: relative; top: 0; left: 0; max-width: 100%; margin-bottom: 12px; }
+            .map-legend { bottom: 10px; left: 10px; padding: 8px 12px; font-size: 0.65rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="map-header">
+        <span class="eyebrow">Our Footprint</span>
+        <h1 class="headline">Active across the East Coast.</h1>
+    </header>
+    <div class="map-wrapper">
+        <div class="info-card frosted-panel">
+            <div class="card-eyebrow">Headquarters</div>
+            <h2>Woodmont Properties</h2>
+            <p>100 Passaic Avenue, Suite 240<br>Fairfield, NJ 07004</p>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=100%20Passaic%20Avenue%20Suite%20240%20Fairfield%20NJ%2007004" target="_blank" rel="noopener" class="btn-directions">Get Directions →</a>
+        </div>
+        <div id="map"></div>
+        <div class="map-legend frosted-panel">
+            <div class="legend-item">
+                <div class="custom-logo-marker" style="width: 22px; height: 22px; border: 1.5px solid #B08D57;"><img src="https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png" alt="W"></div>
+                <span>Corporate HQ</span>
+            </div>
+            <div class="legend-item">
+                <div class="custom-logo-marker" style="width: 18px; height: 18px; border: 1.5px solid #3A7BD5;"><img src="https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png" alt="W"></div>
+                <span>Communities · NJ · NY · PA · FL</span>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmR7FwEXJrF5r5vF5HKcHNGRI0aYRIaFiSRgxgSo69Io26hkWwWuMmXWVo6xZgAPNiwVVFqqfN5bQ==&q=80" crossorigin="anonymous"></script>
+    <script>
+        const logoUrl = "https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png";
+        const hqData = { lat: 40.8831, lng: -74.3049, title: "Woodmont Properties — HQ", address: "Fairfield, NJ", url: "https://www.google.com/maps/dir/?api=1&destination=100%20Passaic%20Avenue%20Suite%20240%20Fairfield%20NJ%2007004" };
+        const marketLocations = [
+            { lat: 40.7968, lng: -74.4815, city: "Morristown, NJ" }, { lat: 40.8487, lng: -74.5854, city: "Randolph, NJ" },
+            { lat: 40.3325, lng: -74.5907, city: "Plainsboro, NJ" }, { lat: 40.5576, lng: -74.2846, city: "Woodbridge, NJ" },
+            { lat: 40.6584, lng: -74.2996, city: "Cranford, NJ" }, { lat: 40.7895, lng: -74.0565, city: "Secaucus, NJ" },
+            { lat: 40.6687, lng: -74.1143, city: "Bayonne, NJ" }, { lat: 40.5940, lng: -74.6246, city: "Bridgewater, NJ" },
+            { lat: 40.3471, lng: -74.0640, city: "Red Bank, NJ" }, { lat: 39.7659, lng: -75.0832, city: "Washington Twp., NJ" },
+            { lat: 41.1554, lng: -74.1921, city: "Sloatsburg, NY" }, { lat: 40.6259, lng: -75.3705, city: "Bethlehem, PA" },
+            { lat: 40.6084, lng: -75.4902, city: "Allentown, PA" }, { lat: 40.6884, lng: -75.2207, city: "Easton, PA" },
+            { lat: 40.5165, lng: -75.5557, city: "Macungie, PA" }, { lat: 27.9944, lng: -82.4451, city: "Florida" }
+        ];
+
+        const map = L.map('map', { scrollWheelZoom: false, zoomControl: false, maxZoom: 16, minZoom: 3 }).setView([37.0902, -85.7129], 4);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank">CARTO</a>',
+            subdomains: 'abcd'
+        }).addTo(map);
+
+        map.on('focus', () => { map.scrollWheelZoom.enable(); });
+        map.on('blur', () => { map.scrollWheelZoom.disable(); });
+
+        const pointBounds = [];
+        const hqIcon = L.divIcon({ className: 'custom-logo-marker', html: `<img src="${logoUrl}" alt="W">`, iconSize: [52, 52], iconAnchor: [26, 26] });
+        const hqMarker = L.marker([hqData.lat, hqData.lng], { icon: hqIcon }).addTo(map);
+        hqMarker._icon.style.border = "2px solid #B08D57";
+        hqMarker._icon.style.boxShadow = "0 0 15px rgba(176, 141, 87, 0.6)";
+        hqMarker.bindPopup(`<div class="popup-title">${hqData.title}</div><div class="popup-subtitle">${hqData.address}</div><a href="${hqData.url}" target="_blank" rel="noopener" class="popup-link">Get directions →</a>`, { closeButton: false, offset: [0, -10] });
+        pointBounds.push([hqData.lat, hqData.lng]);
+
+        const communityIcon = L.divIcon({ className: 'custom-logo-marker', html: `<img src="${logoUrl}" alt="W">`, iconSize: [34, 34], iconAnchor: [17, 17] });
+        marketLocations.forEach(loc => {
+            const marker = L.marker([loc.lat, loc.lng], { icon: communityIcon }).addTo(map);
+            marker._icon.style.border = "1.5px solid #3A7BD5";
+            marker._icon.style.boxShadow = "0 0 10px rgba(58, 123, 213, 0.4)";
+            marker.bindPopup(`<div class="popup-title" style="font-size:1rem; margin-bottom:0;">${loc.city}</div><div class="popup-subtitle" style="margin-bottom:0; font-size:0.65rem;">Woodmont Properties Footprint</div>`, { closeButton: false, offset: [0, -6] });
+            pointBounds.push([loc.lat, loc.lng]);
+        });
+
+        if (pointBounds.length > 0) {
+            const bounds = L.latLngBounds(pointBounds);
+            setTimeout(() => {
+                map.flyToBounds(bounds, { padding: window.innerWidth <= 768 ? [20, 20] : [50, 50], maxZoom: 7, duration: 2.5, easeLinearity: 0.25 });
+            }, 800);
+        }
+
+        function adjustLayoutForMobile() {
+            const infoCard = document.querySelector('.info-card');
+            const wrapper = document.querySelector('.map-wrapper');
+            if (window.innerWidth <= 768) { wrapper.parentNode.insertBefore(infoCard, wrapper); }
+            else { wrapper.appendChild(infoCard); }
+            map.invalidateSize();
+        }
+        window.addEventListener('resize', adjustLayoutForMobile);
+        window.addEventListener('DOMContentLoaded', adjustLayoutForMobile);
+    </script>
+</body>
+</html>
