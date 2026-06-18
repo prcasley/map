@@ -155,6 +155,7 @@
             { name: "Snowmass Club", city: "Aspen, CO", lat: 39.2124, lng: -106.9458, sqft: null }
         ];
 
+        // Core Initialization
         const map = L.map('map', { scrollWheelZoom: false, zoomControl: false, minZoom: 2 });
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -168,6 +169,7 @@
 
         const pointBounds = [];
 
+        // Build Markers
         const hqIcon = L.divIcon({ className: 'custom-logo-marker marker-hq', html: `<img src="${logoUrl}" alt="W">`, iconSize: [52, 52], iconAnchor: [26, 26] });
         const hqMarker = L.marker([hqData.lat, hqData.lng], { icon: hqIcon }).addTo(map);
         hqMarker.bindPopup(`<div class="popup-title">${hqData.title}</div><div class="popup-subtitle">${hqData.address}</div><a href="${hqData.url}" target="_blank" rel="noopener" class="popup-link">Get directions →</a>`, { closeButton: false, offset: [0, -10] });
@@ -177,7 +179,6 @@
         
         marketLocations.forEach(loc => {
             const marker = L.marker([loc.lat, loc.lng], { icon: communityIcon }).addTo(map);
-            
             let popupHtml = `<div class="popup-title" style="margin-bottom:0;">${loc.name}</div><div class="popup-subtitle" style="margin-bottom:0;">${loc.city}</div>`;
             if(loc.sqft) {
                 popupHtml += `<div class="popup-subtitle" style="color:#B08D57; font-weight:600; margin-top:4px; margin-bottom:0;">${loc.sqft}</div>`;
@@ -186,10 +187,31 @@
             pointBounds.push([loc.lat, loc.lng]);
         });
 
+        // Set baseline wide view boundings instantly
         if (pointBounds.length > 0) {
             const bounds = L.latLngBounds(pointBounds);
-            map.fitBounds(bounds, { padding: [40, 40] });
+            map.fitBounds(bounds, { padding: [40, 40], animate: false });
+        }
 
+        // Handle Responsive Frame Execution Lifecycle securely
+        function adjustLayoutForMobile() {
+            const infoCard = document.querySelector('.info-card');
+            const wrapper = document.querySelector('.map-wrapper');
+            if (window.innerWidth <= 768) { 
+                wrapper.parentNode.insertBefore(infoCard, wrapper); 
+            } else { 
+                wrapper.appendChild(infoCard); 
+            }
+            
+            // Re-settle engine dimensions safely first, then trigger flyTo inside a safe callback execution pattern
+            map.invalidateSize();
+        }
+
+        // Coordinate sequencing once layout geometry is stable
+        window.addEventListener('DOMContentLoaded', () => {
+            adjustLayoutForMobile();
+            
+            // Execute the cinematic transition safely after initial render pass settles cleanly
             setTimeout(() => {
                 const finalZoom = window.innerWidth <= 768 ? 12 : 13;
                 map.flyTo([hqData.lat, hqData.lng], finalZoom, {
@@ -197,17 +219,12 @@
                     easeLinearity: 0.25
                 });
             }, 1200);
-        }
+        });
 
-        function adjustLayoutForMobile() {
-            const infoCard = document.querySelector('.info-card');
-            const wrapper = document.querySelector('.map-wrapper');
-            if (window.innerWidth <= 768) { wrapper.parentNode.insertBefore(infoCard, wrapper); }
-            else { wrapper.appendChild(infoCard); }
+        window.addEventListener('resize', () => {
+            // Passive invalidation without view tracking disruption post-animation loop
             map.invalidateSize();
-        }
-        window.addEventListener('resize', adjustLayoutForMobile);
-        window.addEventListener('DOMContentLoaded', adjustLayoutForMobile);
+        });
     </script>
 </body>
 </html>
