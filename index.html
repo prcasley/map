@@ -26,8 +26,14 @@
         .btn-directions:hover { background: #B08D57; color: #0b223f; }
         .map-legend { position: absolute; bottom: 30px; left: 20px; z-index: 1000; padding: 12px 16px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .legend-item { display: flex; align-items: center; gap: 10px; }
+        
+        /* Circular Badged Logo Markers with Baked CSS Styles */
         .custom-logo-marker { background-color: #0b223f; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .custom-logo-marker img { width: 70%; height: 70%; object-fit: contain; }
+        
+        .marker-hq { border: 2px solid #B08D57 !important; box-shadow: 0 0 15px rgba(176, 141, 87, 0.6) !important; }
+        .marker-community { border: 1.5px solid #3A7BD5 !important; box-shadow: 0 0 10px rgba(58, 123, 213, 0.4) !important; }
+
         .leaflet-popup-content-wrapper { background: rgba(11, 34, 63, 0.95) !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(176, 141, 87, 0.3); border-radius: 3px !important; color: #F8F7F4 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important; }
         .leaflet-popup-tip { background: rgba(11, 34, 63, 0.95) !important; border-left: 1px solid rgba(176, 141, 87, 0.3); border-bottom: 1px solid rgba(176, 141, 87, 0.3); }
         .popup-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 2px; }
@@ -63,7 +69,7 @@
         <div id="map"></div>
         <div class="map-legend frosted-panel">
             <div class="legend-item">
-                <div class="custom-logo-marker" style="width: 22px; height: 22px; border: 1.5px solid #B08D57;"><img src="https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png" alt="W"></div>
+                <div class="custom-logo-marker marker-hq" style="width: 22px; height: 22px; box-shadow: none !important;"><img src="https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png" alt="W"></div>
                 <span>Corporate HQ</span>
             </div>
         </div>
@@ -163,19 +169,17 @@
 
         const pointBounds = [];
 
-        const hqIcon = L.divIcon({ className: 'custom-logo-marker', html: `<img src="${logoUrl}" alt="W">`, iconSize: [52, 52], iconAnchor: [26, 26] });
+        // HQ Marker with styling class baked directly into divIcon payload
+        const hqIcon = L.divIcon({ className: 'custom-logo-marker marker-hq', html: `<img src="${logoUrl}" alt="W">`, iconSize: [52, 52], iconAnchor: [26, 26] });
         const hqMarker = L.marker([hqData.lat, hqData.lng], { icon: hqIcon }).addTo(map);
-        hqMarker._icon.style.border = "2px solid #B08D57";
-        hqMarker._icon.style.boxShadow = "0 0 15px rgba(176, 141, 87, 0.6)";
         hqMarker.bindPopup(`<div class="popup-title">${hqData.title}</div><div class="popup-subtitle">${hqData.address}</div><a href="${hqData.url}" target="_blank" rel="noopener" class="popup-link">Get directions →</a>`, { closeButton: false, offset: [0, -10] });
         pointBounds.push([hqData.lat, hqData.lng]);
 
-        const communityIcon = L.divIcon({ className: 'custom-logo-marker', html: `<img src="${logoUrl}" alt="W">`, iconSize: [34, 34], iconAnchor: [17, 17] });
+        // Community Markers with styling class baked directly into divIcon payload
+        const communityIcon = L.divIcon({ className: 'custom-logo-marker marker-community', html: `<img src="${logoUrl}" alt="W">`, iconSize: [34, 34], iconAnchor: [17, 17] });
         
         marketLocations.forEach(loc => {
             const marker = L.marker([loc.lat, loc.lng], { icon: communityIcon }).addTo(map);
-            marker._icon.style.border = "1.5px solid #3A7BD5";
-            marker._icon.style.boxShadow = "0 0 10px rgba(58, 123, 213, 0.4)";
             
             let popupHtml = `<div class="popup-title" style="margin-bottom:0;">${loc.name}</div><div class="popup-subtitle" style="margin-bottom:0;">${loc.city}</div>`;
             if(loc.sqft) {
