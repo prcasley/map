@@ -47,12 +47,14 @@
             .info-card { position: relative; top: 0; left: 0; max-width: 100%; margin-bottom: 12px; }
             .map-legend { bottom: 10px; left: 10px; padding: 8px 12px; font-size: 0.65rem; }
         }
-    </style>
+    
+.popup-dir{display:inline-block;margin-top:10px;padding:7px 14px;border:1px solid #c9ccd1;border-radius:6px;color:#c9ccd1;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:all .2s ease;}
+.popup-dir:hover{background:#c9ccd1;color:#0b223f;}
+</style>
 </head>
 <body>
     <div class="map-wrapper">
         <div class="info-card frosted-panel">
-            <div class="card-eyebrow">Headquarters</div>
             <h2>Woodmont Properties</h2>
             <p>100 Passaic Avenue, Suite 240<br>Fairfield, NJ 07004</p>
             <a href="https://www.google.com/maps/dir/?api=1&destination=100%20Passaic%20Avenue%20Suite%20240%20Fairfield%20NJ%2007004" target="_blank" rel="noopener" class="btn-directions">Get Directions →</a>
@@ -61,14 +63,14 @@
         <div class="map-legend frosted-panel">
             <div class="legend-item">
                 <div class="custom-logo-marker marker-hq" style="width: 22px; height: 22px; box-shadow: none !important;"><img src="https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png" alt="W"></div>
-                <span>Corporate HQ</span>
+                <span>Home Office</span>
             </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmR7FwEXJrF5r5vF5HKcHNGRI0aYRIaFiSRgxgSo69Io26hkWwWuMmXWVo6xZgAPNiwVVFqqfN5bQ==&q=80" crossorigin="anonymous"></script>
     <script>
         const logoUrl = "https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png";
-        const hqData = { lat: 40.8831, lng: -74.3049, title: "Woodmont Properties — HQ", address: "100 Passaic Avenue, Suite 240, Fairfield, NJ 07004", url: "https://www.google.com/maps/dir/?api=1&destination=100%20Passaic%20Avenue%20Suite%20240%20Fairfield%20NJ%2007004" };
+        const hqData = { lat: 40.8831, lng: -74.3049, title: "Woodmont Properties - Home Office", address: "100 Passaic Avenue, Suite 240, Fairfield, NJ 07004", url: "https://www.google.com/maps/dir/?api=1&destination=100%20Passaic%20Avenue%20Suite%20240%20Fairfield%20NJ%2007004" };
         
         const marketLocations = [
             { name: "The Shoppes at Valley Square", city: "Macungie, PA", lat: 40.5121, lng: -75.5488, sqft: null },
@@ -169,7 +171,7 @@
         
         marketLocations.forEach(loc => {
             const marker = L.marker([loc.lat, loc.lng], { icon: communityIcon }).addTo(map);
-            let popupHtml = `<div class="popup-title" style="margin-bottom:0;">${loc.name}</div><div class="popup-subtitle" style="margin-bottom:0;">${loc.city}</div>`;
+            let popupHtml = `<div class="popup-title" style="margin-bottom:0;">${loc.name}</div><div class="popup-subtitle" style="margin-bottom:0;">${loc.city}</div><a class="popup-dir" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(loc.name + ", " + loc.city)}" target="_blank" rel="noopener">Get Directions →</a>`;
             if(loc.sqft) {
                 popupHtml += `<div class="popup-subtitle" style="color:#c9ccd1; font-weight:600; margin-top:4px; margin-bottom:0;">${loc.sqft}</div>`;
             }
