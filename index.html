@@ -27,7 +27,6 @@
         .map-legend { position: absolute; bottom: 30px; left: 20px; z-index: 1000; padding: 12px 16px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .legend-item { display: flex; align-items: center; gap: 10px; }
         
-        /* Circular Badged Logo Markers with Baked CSS Styles */
         .custom-logo-marker { background-color: #0b223f; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .custom-logo-marker img { width: 70%; height: 70%; object-fit: contain; }
         
@@ -169,13 +168,11 @@
 
         const pointBounds = [];
 
-        // HQ Marker with styling class baked directly into divIcon payload
         const hqIcon = L.divIcon({ className: 'custom-logo-marker marker-hq', html: `<img src="${logoUrl}" alt="W">`, iconSize: [52, 52], iconAnchor: [26, 26] });
         const hqMarker = L.marker([hqData.lat, hqData.lng], { icon: hqIcon }).addTo(map);
         hqMarker.bindPopup(`<div class="popup-title">${hqData.title}</div><div class="popup-subtitle">${hqData.address}</div><a href="${hqData.url}" target="_blank" rel="noopener" class="popup-link">Get directions →</a>`, { closeButton: false, offset: [0, -10] });
         pointBounds.push([hqData.lat, hqData.lng]);
 
-        // Community Markers with styling class baked directly into divIcon payload
         const communityIcon = L.divIcon({ className: 'custom-logo-marker marker-community', html: `<img src="${logoUrl}" alt="W">`, iconSize: [34, 34], iconAnchor: [17, 17] });
         
         marketLocations.forEach(loc => {
@@ -192,6 +189,14 @@
         if (pointBounds.length > 0) {
             const bounds = L.latLngBounds(pointBounds);
             map.fitBounds(bounds, { padding: [40, 40] });
+
+            setTimeout(() => {
+                const finalZoom = window.innerWidth <= 768 ? 12 : 13;
+                map.flyTo([hqData.lat, hqData.lng], finalZoom, {
+                    duration: 4.5,
+                    easeLinearity: 0.25
+                });
+            }, 1200);
         }
 
         function adjustLayoutForMobile() {
