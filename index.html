@@ -58,13 +58,15 @@
         .wm-hovertip-sub { color:#c9ccd1; font-size:0.72rem; letter-spacing:0.04em; text-transform:uppercase; margin-top:2px; }
         @media (max-width:768px){ .wm-hovertip{ display:none !important; } }
     
-        .hq-card-img { display:block; width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:14px; border:1px solid rgba(201,204,209,0.35); background:#0b223f; }
-    </style>
+        
+    
+    .leaflet-popup-content .popup-dir, .leaflet-popup-content a.popup-dir { color:#c9ccd1 !important; text-decoration:none !important; }
+</style>
 </head>
 <body>
     <div class="map-wrapper">
         <div class="info-card frosted-panel">
-            <img class="hq-card-img" src="https://i0.wp.com/operations2026.wpcomstaging.com/wp-content/uploads/2026/06/HomeOffice.png?ssl=1" alt="Woodmont Properties - Home Office" loading="lazy" onerror="this.style.display='none'">
+            
             <h2>Woodmont Properties</h2>
             <p>100 Passaic Avenue, Suite 240<br>Fairfield, NJ 07004</p>
             <a href="https://www.google.com/maps/dir/?api=1&destination=100%20Passaic%20Avenue%20Suite%20240%20Fairfield%20NJ%2007004" target="_blank" rel="noopener" class="btn-directions">Get Directions →</a>
@@ -174,6 +176,19 @@
         const hqIcon = L.divIcon({ className: 'custom-logo-marker marker-hq', html: `<img src="${logoUrl}" alt="W">`, iconSize: [52, 52], iconAnchor: [26, 26] });
         const hqMarker = L.marker([hqData.lat, hqData.lng], { icon: hqIcon }).addTo(map);
         hqMarker.bindPopup(`<img class="popup-img" src="https://i0.wp.com/operations2026.wpcomstaging.com/wp-content/uploads/2026/06/HomeOffice.png?ssl=1" alt="Home Office" loading="lazy" onerror="this.style.display='none'"><div class="popup-title">${hqData.title}</div><div class="popup-subtitle">${hqData.address}</div><a href="${hqData.url}" target="_blank" rel="noopener" class="popup-link">Get directions →</a>`, { closeButton: false, offset: [0, -10] });
+      hqMarker.on('mouseover', function(e){
+                if(!"https://i0.wp.com/operations2026.wpcomstaging.com/wp-content/uploads/2026/06/HomeOffice.png?ssl=1") return;
+                var tip=document.getElementById('wm-hovertip');
+                if(!tip){ tip=document.createElement('div'); tip.id='wm-hovertip'; tip.className='wm-hovertip'; document.body.appendChild(tip); }
+                tip.innerHTML='<img src="'+"https://i0.wp.com/operations2026.wpcomstaging.com/wp-content/uploads/2026/06/HomeOffice.png?ssl=1"+'" alt="'+"Woodmont Properties"+'" onerror="this.style.display=\'none\'"><div class="wm-hovertip-name">'+"Woodmont Properties"+'</div>'+("Home Office"?'<div class="wm-hovertip-sub">'+"Home Office"+'</div>':'');
+                tip.style.display='block';
+            });
+            hqMarker.on('mousemove', function(e){
+                var tip=document.getElementById('wm-hovertip'); if(!tip) return;
+                var oe=e.originalEvent; tip.style.left=(oe.clientX+16)+'px'; tip.style.top=(oe.clientY+16)+'px';
+            });
+            hqMarker.on('mouseout', function(){ var tip=document.getElementById('wm-hovertip'); if(tip) tip.style.display='none'; });
+
         pointBounds.push([hqData.lat, hqData.lng]);
 
         const communityIcon = L.divIcon({ className: 'custom-logo-marker marker-community', html: `<img src="${logoUrl}" alt="W">`, iconSize: [34, 34], iconAnchor: [17, 17] });
