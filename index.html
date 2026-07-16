@@ -6,7 +6,7 @@
     <title>Woodmont Properties - Interactive Footprint Map</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.cohm/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjECl6rXUdcaMNo16C0P9A+A773u57B8Hekf06pS7qXg4Mfw8c9Zc8A==&q=80" crossorigin="anonymous" />
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -186,8 +186,8 @@
         });
 
         if (pointBounds.length > 0) {
-            const bounds = L.latLngBounds(pointBounds);
-            map.fitBounds(bounds, { padding: [40, 40], animate: false });
+            window.mapBounds = L.latLngBounds(pointBounds);
+            const startZoom = window.innerWidth <= 768 ? 12 : 13; map.setView([hqData.lat, hqData.lng], startZoom, { animate: false });
         }
 
         function adjustLayoutForMobile() {
@@ -204,9 +204,9 @@
         window.addEventListener('DOMContentLoaded', () => {
             adjustLayoutForMobile();
             setTimeout(() => {
-                const finalZoom = window.innerWidth <= 768 ? 12 : 13;
-                map.flyTo([hqData.lat, hqData.lng], finalZoom, {
-                    duration: 4.5,
+                
+                map.flyToBounds(window.mapBounds, {
+                    padding: [40, 40], duration: 4.5,
                     easeLinearity: 0.25
                 });
             }, 1200);
