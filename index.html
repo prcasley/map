@@ -256,6 +256,7 @@ else{map.flyToBounds(L.latLngBounds(pts),{padding:[60,60],duration:2.5,maxZoom:1
 window.addEventListener('resize', () => {
             map.invalidateSize();
         });
+    (function(){ var b=document.querySelector('.legend-item'); if(b&&typeof map!=='undefined'&&typeof hqData!=='undefined'){ b.style.cursor='pointer'; b.addEventListener('click',function(){ var z=window.innerWidth<=768?12:13; map.flyTo([hqData.lat,hqData.lng],z,{duration:2}); }); } })();
     </script>
 </body>
 </html>
