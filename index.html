@@ -9,6 +9,17 @@
     <link href="https://fonts.googleapis.cohm/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjECl6rXUdcaMNo16C0P9A+A773u57B8Hekf06pS7qXg4Mfw8c9Zc8A==&q=80" crossorigin="anonymous" />
     <style>
+.region-filter{position:absolute;top:20px;right:20px;z-index:1100;width:230px;padding:0;cursor:pointer;}
+.region-filter .rf-head{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:#f8f7f4;padding:14px 18px;}
+.region-filter .rf-caret{transition:transform 0.3s ease;font-size:0.8rem;}
+.region-filter.open .rf-caret{transform:rotate(180deg);}
+.region-filter .rf-list{display:none;flex-direction:column;border-top:1px solid rgba(201,204,209,0.3);}
+.region-filter.open .rf-list{display:flex;}
+.region-filter .rf-item{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:#f8f7f4;text-align:center;padding:11px 18px;border-bottom:1px solid rgba(201,204,209,0.2);transition:background 0.2s ease,color 0.2s ease;}
+.region-filter .rf-item:last-child{border-bottom:none;}
+.region-filter .rf-item:hover{background:rgba(201,204,209,0.15);color:#fff;}
+@media(max-width:768px){.region-filter{position:relative;top:0;right:0;width:100%;margin-bottom:12px;}}
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: linear-gradient(180deg, #000000 0%, #04101f 55%, #0b223f 100%); background-attachment: fixed; color: #F8F7F4; font-family: 'Inter', sans-serif; padding: 0; margin: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         .map-wrapper { position: relative; width: 100%; max-width: 1200px; flex: 1; min-height: 420px; margin: 0 auto; border: 1px solid rgba(201, 204, 209, 0.3); border-radius: 4px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); }
@@ -72,6 +83,14 @@
             <a href="https://www.google.com/maps/dir/?api=1&destination=100%20Passaic%20Avenue%20Suite%20240%20Fairfield%20NJ%2007004" target="_blank" rel="noopener" class="btn-directions">Get Directions →</a>
         </div>
         <div id="map"></div>
+<div class="region-filter frosted-panel" id="regionFilter">
+<div class="rf-head" id="rfHead"><span>Portfolio</span><span class="rf-caret">▾</span></div>
+<div class="rf-list">
+<div class="rf-item" data-region="northeast">Northeast Region</div>
+<div class="rf-item" data-region="south">South Region</div>
+<div class="rf-item" data-region="west">West Mountain Region</div>
+</div>
+</div>
         <div class="map-legend frosted-panel">
             <div class="legend-item">
                 <div class="custom-logo-marker marker-hq" style="width: 22px; height: 22px; box-shadow: none !important;"><img src="https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png" alt="W"></div>
@@ -212,7 +231,29 @@
             }, 1200);
         });
 
-        window.addEventListener('resize', () => {
+        (function(){
+var regions={northeast:[],south:[],west:[]};
+function classify(lat,lng){if(lng<-100)return 'west';if(lat<32)return 'south';return 'northeast';}
+regions[classify(hqData.lat,hqData.lng)].push([hqData.lat,hqData.lng]);
+marketLocations.forEach(function(l){regions[classify(l.lat,l.lng)].push([l.lat,l.lng]);});
+var rf=document.getElementById('regionFilter');
+var head=document.getElementById('rfHead');
+head.addEventListener('click',function(e){e.stopPropagation();rf.classList.toggle('open');});
+document.addEventListener('click',function(){rf.classList.remove('open');});
+document.querySelectorAll('#regionFilter .rf-item').forEach(function(item){
+item.addEventListener('click',function(e){
+e.stopPropagation();
+var r=item.getAttribute('data-region');
+var pts=regions[r]||[];
+rf.classList.remove('open');
+if(pts.length===0)return;
+if(pts.length===1){map.flyTo(pts[0],12,{duration:2.5});}
+else{map.flyToBounds(L.latLngBounds(pts),{padding:[60,60],duration:2.5,maxZoom:11});}
+});
+});
+})();
+
+window.addEventListener('resize', () => {
             map.invalidateSize();
         });
     </script>
