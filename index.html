@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.cohm/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjECl6rXUdcaMNo16C0P9A+A773u57B8Hekf06pS7qXg4Mfw8c9Zc8A==&q=80" crossorigin="anonymous" />
     <style>
-.region-filter{position:absolute;top:20px;right:20px;z-index:1100;width:230px;padding:0;cursor:pointer;}
+.region-filter{position:absolute;top:20px;right:20px;z-index:1100;width:230px;padding:0;cursor:pointer;background:rgba(11,34,63,0.5);}
 .region-filter .rf-head{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:#f8f7f4;padding:14px 18px;}
 .region-filter .rf-caret{transition:transform 0.3s ease;font-size:0.8rem;}
 .region-filter.open .rf-caret{transform:rotate(180deg);}
@@ -246,7 +246,7 @@ e.stopPropagation();
 var r=item.getAttribute('data-region');
 var pts=regions[r]||[];
 rf.classList.remove('open');
-if(pts.length===0)return;
+if(pts.length===0)return;if(r==='northeast'){map.flyTo([hqData.lat,hqData.lng],9,{duration:2.5});return;}
 if(pts.length===1){map.flyTo(pts[0],12,{duration:2.5});}
 else{map.flyToBounds(L.latLngBounds(pts),{padding:[60,60],duration:2.5,maxZoom:11});}
 });
