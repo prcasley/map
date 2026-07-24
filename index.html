@@ -72,7 +72,13 @@
         
     
     .leaflet-popup-content .popup-dir, .leaflet-popup-content a.popup-dir { color:#c9ccd1 !important; text-decoration:none !important; }
-</style>
+
+        .wm-cluster { position: relative; width: 40px; height: 40px; }
+        .wm-cluster img { width: 40px; height: 40px; display: block; }
+        .wm-cluster-count { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: #c9a24b; color: #0b223f; font-family: "Inter", sans-serif; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; box-shadow: 0 0 0 2px #0b223f; }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
 </head>
 <body>
     <div class="map-wrapper">
@@ -99,6 +105,7 @@
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmR7FwEXJrF5r5vF5HKcHNGRI0aYRIaFiSRgxgSo69Io26hkWwWuMmXWVo6xZgAPNiwVVFqqfN5bQ==&q=80" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
         const logoUrl = "https://operations2026.wordpress.com/wp-content/uploads/2026/05/woodmont-w-white-1.png";
         const hqData = { lat: 40.8831, lng: -74.3049, title: "Woodmont Properties - Home Office", address: "100 Passaic Avenue, Suite 240, Fairfield, NJ 07004", url: "https://www.google.com/maps/dir/?api=1&destination=100%20Passaic%20Avenue%20Suite%20240%20Fairfield%20NJ%2007004" };
@@ -182,8 +189,23 @@
 
         const communityIcon = L.divIcon({ className: 'custom-logo-marker marker-community', html: `<img src="${logoUrl}" alt="W">`, iconSize: [34, 34], iconAnchor: [17, 17] });
         
+        var marketCluster = L.markerClusterGroup({
+            showCoverageOnHover: false,
+            spiderfyDistanceMultiplier: 1.6,
+            maxClusterRadius: 40,
+            iconCreateFunction: function(cluster) {
+                return L.divIcon({
+                    className: "custom-logo-marker marker-cluster-count",
+                    html: '<div class="wm-cluster"><img src="' + logoUrl + '" alt="W"><span class="wm-cluster-count">' + cluster.getChildCount() + '</span></div>',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                });
+            }
+        });
+        map.addLayer(marketCluster);
         marketLocations.forEach(loc => {
-            const marker = L.marker([loc.lat, loc.lng], { icon: communityIcon }).addTo(map);
+            const marker = L.marker([loc.lat, loc.lng], { icon: communityIcon });
+            marketCluster.addLayer(marker);
             let popupHtml = `<img class="popup-img" src="${loc.img}" alt="${loc.name}" loading="lazy" onerror="this.style.display='none'"><div class="popup-title" style="margin-bottom:0;">${loc.name}</div><div class="popup-subtitle" style="margin-bottom:0;">${loc.city}</div><a class="popup-dir" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(loc.name + ", " + loc.city)}" target="_blank" rel="noopener">Get Directions →</a>`;
             if(loc.sqft) {
                 popupHtml += `<div class="popup-subtitle" style="color:#c9ccd1; font-weight:600; margin-top:4px; margin-bottom:0;">${loc.sqft}</div>`;
