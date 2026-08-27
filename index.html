@@ -159,10 +159,10 @@
         const map = L.map('map', { scrollWheelZoom: false, zoomControl: false, minZoom: 2 });
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank">CARTO</a>',
-            subdomains: 'abcd'
-        }).addTo(map);
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+                                attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+                                maxZoom: 16
+                }).addTo(map);
 
         map.on('focus', () => { map.scrollWheelZoom.enable(); });
         map.on('blur', () => { map.scrollWheelZoom.disable(); });
